@@ -439,7 +439,73 @@ function app(state, actions, view, container) {
     return element;
   }
 }
-},{}],"js/state.js":[function(require,module,exports) {
+},{}],"../node_modules/parcel-bundler/lib/builtins/bundle-url.js":[function(require,module,exports) {
+var bundleURL = null;
+function getBundleURLCached() {
+  if (!bundleURL) {
+    bundleURL = getBundleURL();
+  }
+
+  return bundleURL;
+}
+
+function getBundleURL() {
+  // Attempt to find the URL of the current script and use that as the base URL
+  try {
+    throw new Error();
+  } catch (err) {
+    var matches = ('' + err.stack).match(/(https?|file|ftp):\/\/[^)\n]+/g);
+    if (matches) {
+      return getBaseURL(matches[0]);
+    }
+  }
+
+  return '/';
+}
+
+function getBaseURL(url) {
+  return ('' + url).replace(/^((?:https?|file|ftp):\/\/.+)\/[^/]+$/, '$1') + '/';
+}
+
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+},{}],"../node_modules/parcel-bundler/lib/builtins/css-loader.js":[function(require,module,exports) {
+var bundle = require('./bundle-url');
+
+function updateLink(link) {
+  var newLink = link.cloneNode();
+  newLink.onload = function () {
+    link.remove();
+  };
+  newLink.href = link.href.split('?')[0] + '?' + Date.now();
+  link.parentNode.insertBefore(newLink, link.nextSibling);
+}
+
+var cssTimeout = null;
+function reloadCSS() {
+  if (cssTimeout) {
+    return;
+  }
+
+  cssTimeout = setTimeout(function () {
+    var links = document.querySelectorAll('link[rel="stylesheet"]');
+    for (var i = 0; i < links.length; i++) {
+      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
+        updateLink(links[i]);
+      }
+    }
+
+    cssTimeout = null;
+  }, 50);
+}
+
+module.exports = reloadCSS;
+},{"./bundle-url":"../node_modules/parcel-bundler/lib/builtins/bundle-url.js"}],"scss/index.scss":[function(require,module,exports) {
+
+var reloadCSS = require('_css_loader');
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
+},{"_css_loader":"../node_modules/parcel-bundler/lib/builtins/css-loader.js"}],"js/state.js":[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -450,6 +516,7 @@ var state = {
     input: '',
     placeholder: 'Make a list..'
 };
+
 exports.default = state;
 },{}],"js/actions.js":[function(require,module,exports) {
 'use strict';
@@ -501,106 +568,112 @@ var actions = {
         };
     }
 };
+
 exports.default = actions;
 },{}],"js/view.js":[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _hyperapp = require('hyperapp');
 
 var AddItem = function AddItem(_ref) {
-    var add = _ref.add,
-        input = _ref.input,
-        value = _ref.value,
-        placeholder = _ref.placeholder;
-    return (0, _hyperapp.h)(
-        'div',
-        { 'class': 'flex' },
-        (0, _hyperapp.h)('input', { type: 'text',
-            onkeyup: function onkeyup(e) {
-                return e.keyCode === 13 ? add() : null;
-            },
-            oninput: function oninput(e) {
-                return input({ value: e.target.value });
-            },
-            value: value, placeholder: placeholder }),
-        (0, _hyperapp.h)(
-            'button',
-            { onclick: add },
-            '\uFF0B'
-        )
-    );
+  var add = _ref.add,
+      input = _ref.input,
+      value = _ref.value,
+      placeholder = _ref.placeholder;
+  return (0, _hyperapp.h)(
+    'div',
+    { 'class': 'flex' },
+    (0, _hyperapp.h)('input', {
+      type: 'text',
+      onkeyup: function onkeyup(e) {
+        return e.keyCode === 13 ? add() : null;
+      },
+      oninput: function oninput(e) {
+        return input({ value: e.target.value });
+      },
+      value: value,
+      placeholder: placeholder
+    }),
+    (0, _hyperapp.h)(
+      'button',
+      { onclick: add },
+      '+'
+    )
+  );
 };
+
 var ListItem = function ListItem(_ref2) {
-    var value = _ref2.value,
-        id = _ref2.id,
-        completed = _ref2.completed,
-        toggle = _ref2.toggle,
-        destroy = _ref2.destroy;
-    return (0, _hyperapp.h)(
-        'li',
-        { 'class': completed && "completed", id: id, key: id, onclick: function onclick(e) {
-                return toggle(id);
-            } },
-        value,
-        ' ',
-        (0, _hyperapp.h)(
-            'button',
-            { onclick: function onclick() {
-                    return destroy(id);
-                } },
-            'x'
-        )
-    );
+  var value = _ref2.value,
+      id = _ref2.id,
+      completed = _ref2.completed,
+      toggle = _ref2.toggle,
+      destroy = _ref2.destroy;
+  return (0, _hyperapp.h)(
+    'li',
+    { 'class': completed && "completed", id: id, key: id, onclick: function onclick(e) {
+        return toggle(id);
+      } },
+    value,
+    ' ',
+    (0, _hyperapp.h)(
+      'button',
+      { onclick: function onclick() {
+          return destroy(id);
+        } },
+      'x'
+    )
+  );
 };
+
 var view = function view(state, actions) {
-    return (0, _hyperapp.h)(
-        'div',
+  return (0, _hyperapp.h)(
+    'div',
+    null,
+    (0, _hyperapp.h)(
+      'h1',
+      null,
+      (0, _hyperapp.h)(
+        'strong',
         null,
-        (0, _hyperapp.h)(
-            'h1',
-            null,
-            (0, _hyperapp.h)(
-                'strong',
-                null,
-                'Hyper'
-            ),
-            'List'
-        ),
-        (0, _hyperapp.h)(AddItem, { add: actions.add,
-            input: actions.input,
-            value: state.input,
-            placeholder: state.placeholder }),
-        (0, _hyperapp.h)(
-            'ul',
-            { id: 'list' },
-            state.items.map(function (item) {
-                return (0, _hyperapp.h)(ListItem, {
-                    id: item.id,
-                    value: item.value,
-                    completed: item.completed,
-                    toggle: actions.toggle,
-                    destroy: actions.destroy
-                });
-            })
-        ),
-        (0, _hyperapp.h)(
-            'button',
-            { onclick: function onclick() {
-                    return actions.clearAllCompleted({ items: state.items });
-                } },
-            'Clear completed items'
-        )
-    );
+        'Hyper'
+      ),
+      'List'
+    ),
+    (0, _hyperapp.h)(AddItem, { add: actions.add, input: actions.input, value: state.input, placeholder: state.placeholder }),
+    (0, _hyperapp.h)(
+      'ul',
+      { id: 'list' },
+      state.items.map(function (item) {
+        return (0, _hyperapp.h)(ListItem, {
+          id: item.id,
+          value: item.value,
+          completed: item.completed,
+          toggle: actions.toggle,
+          destroy: actions.destroy
+        });
+      })
+    ),
+    (0, _hyperapp.h)(
+      'button',
+      { onclick: function onclick() {
+          return actions.clearAllCompleted({ items: state.items });
+        } },
+      'Clear completed items'
+    )
+  );
 };
+
 exports.default = view;
 },{"hyperapp":"../node_modules/hyperapp/src/index.js"}],"index.js":[function(require,module,exports) {
 'use strict';
 
 var _hyperapp = require('hyperapp');
+
+require('./scss/index.scss');
 
 var _state = require('./js/state.js');
 
@@ -617,7 +690,7 @@ var _view2 = _interopRequireDefault(_view);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var main = (0, _hyperapp.app)(_state2.default, _actions2.default, _view2.default, document.body);
-},{"hyperapp":"../node_modules/hyperapp/src/index.js","./js/state.js":"js/state.js","./js/actions.js":"js/actions.js","./js/view.js":"js/view.js"}],"../node_modules/parcel-bundler/lib/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"hyperapp":"../node_modules/hyperapp/src/index.js","./scss/index.scss":"scss/index.scss","./js/state.js":"js/state.js","./js/actions.js":"js/actions.js","./js/view.js":"js/view.js"}],"../node_modules/parcel-bundler/lib/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 
@@ -646,7 +719,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '57737' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '58488' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 

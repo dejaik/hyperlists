@@ -3,4 +3,5 @@ const state = {
     input: '',
     placeholder: 'Make a list..'
 };
+
 export default state;

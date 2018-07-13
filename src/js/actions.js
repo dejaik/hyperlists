@@ -20,4 +20,5 @@ const actions = {
         items: items.filter(item => !item.completed)
     })
 };
+
 export default actions;
